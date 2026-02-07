@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+////////////////////
+/// ENUMS
+////////////////////
+
+enum Role {
+  admin
+  cashier
+}
+
+enum UnitType {
+  meter
+  piece
+}
+
+enum PaymentType {
+  cash
+  card
+  mixed
+  credit
+}
+
+////////////////////
+/// MODELS
+////////////////////
+
+model Store {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?
+  address   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  users     User[]
+  products  Product[]
+  inventory Inventory[]
+  customers Customer[]
+  sales     Sale[]
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  storeId      Int
+  fullName     String
+  phone        String?
+  username     String
+  passwordHash String
+  role         Role
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  store Store @relation(fields: [storeId], references: [id])
+  sales Sale[] @relation("CashierSales")
+
+  @@unique([storeId, username])
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  storeId   Int
+  sku       String?
+  name      String
+  category  String?
+  unit      UnitType
+  basePrice Decimal   @db.Decimal(12, 2)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  store     Store      @relation(fields: [storeId], references: [id])
+  inventory Inventory?
+  saleItems SaleItem[]
+
+  @@index([storeId, sku])
+}
+
+
+model Inventory {
+  id        Int      @id @default(autoincrement())
+  storeId   Int
+  productId Int      @unique
+  qty       Decimal  @default(0) @db.Decimal(14, 3)
+  updatedAt DateTime @default(now())
+
+  store   Store   @relation(fields: [storeId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([storeId, productId])
+}
+
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  storeId   Int
+  fullName  String
+  phone     String
+  note      String?
+  createdAt DateTime @default(now())
+
+  store Store @relation(fields: [storeId], references: [id])
+  sales Sale[]
+
+  @@unique([storeId, phone])
+}
+
+model Sale {
+  id          Int         @id @default(autoincrement())
+  storeId     Int
+  cashierId   Int
+  customerId  Int?
+  receiptNo   String
+  paymentType PaymentType
+  subtotal    Decimal     @db.Decimal(12, 2)
+  discount    Decimal     @db.Decimal(12, 2)
+  total       Decimal     @db.Decimal(12, 2)
+  paidAmount  Decimal     @db.Decimal(12, 2)
+  note        String?
+  createdAt   DateTime    @default(now())
+
+  store    Store    @relation(fields: [storeId], references: [id])
+  cashier  User     @relation("CashierSales", fields: [cashierId], references: [id])
+  customer Customer? @relation(fields: [customerId], references: [id])
+  items    SaleItem[]
+
+  @@unique([storeId, receiptNo])
+}
+
+model SaleItem {
+  id        Int      @id @default(autoincrement())
+  saleId   Int
+  productId Int
+  qty       Decimal   @db.Decimal(14, 3)
+  unitPrice Decimal   @db.Decimal(12, 2)
+  lineTotal Decimal   @db.Decimal(12, 2)
+
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
