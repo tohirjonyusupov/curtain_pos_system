@@ -8,8 +8,20 @@ function parseStoreId(req: Request) {
   return storeId;
 }
 
-export async function getProducts(req: Request, res: Response) {
+function parseId(req: Request) {
+  const idRaw = req.params.id;
+  const id = Number(idRaw);
+  if (!idRaw || Number.isNaN(id) || id <= 0) return null;
+  return id;
+}
+
+export async function toggleProduct(req: Request, res: Response) {
   try {
+    const id = parseId(req);
+    if (!id) {
+      return res.status(400).json({ error: "id must be a positive integer." });
+    }
+
     const storeId = parseStoreId(req);
     if (!storeId) {
       return res
@@ -17,30 +29,18 @@ export async function getProducts(req: Request, res: Response) {
         .json({ error: "storeId is required (query or body)." });
     }
 
-    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
-    const activeRaw = req.query.active;
+    const existing = await prisma.product.findFirst({
+      where: { id, storeId },
+      select: { id: true, isActive: true },
+    });
 
-    let isActive: boolean | undefined;
-    if (typeof activeRaw === "string") {
-      if (activeRaw === "true") isActive = true;
-      if (activeRaw === "false") isActive = false;
+    if (!existing) {
+      return res.status(404).json({ error: "Product not found." });
     }
 
-    const data = await prisma.product.findMany({
-      where: {
-        storeId,
-        ...(q
-          ? {
-            OR: [
-              { name: { contains: q, mode: "insensitive" } },
-              { category: { contains: q, mode: "insensitive" } },
-              { sku: { contains: q, mode: "insensitive" } },
-            ],
-          }
-          : {}),
-        ...(typeof isActive === "boolean" ? { isActive } : {}),
-      },
-      orderBy: { id: "desc" },
+    const data = await prisma.product.update({
+      where: { id },
+      data: { isActive: !existing.isActive },
       select: {
         id: true,
         storeId: true,

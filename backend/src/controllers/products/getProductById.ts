@@ -8,8 +8,20 @@ function parseStoreId(req: Request) {
   return storeId;
 }
 
-export async function getProducts(req: Request, res: Response) {
+function parseId(req: Request) {
+  const idRaw = req.params.id;
+  const id = Number(idRaw);
+  if (!idRaw || Number.isNaN(id) || id <= 0) return null;
+  return id;
+}
+
+export async function getProductById(req: Request, res: Response) {
   try {
+    const id = parseId(req);
+    if (!id) {
+      return res.status(400).json({ error: "id must be a positive integer." });
+    }
+
     const storeId = parseStoreId(req);
     if (!storeId) {
       return res
@@ -17,30 +29,11 @@ export async function getProducts(req: Request, res: Response) {
         .json({ error: "storeId is required (query or body)." });
     }
 
-    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
-    const activeRaw = req.query.active;
-
-    let isActive: boolean | undefined;
-    if (typeof activeRaw === "string") {
-      if (activeRaw === "true") isActive = true;
-      if (activeRaw === "false") isActive = false;
-    }
-
-    const data = await prisma.product.findMany({
+    const data = await prisma.product.findFirst({
       where: {
+        id,
         storeId,
-        ...(q
-          ? {
-            OR: [
-              { name: { contains: q, mode: "insensitive" } },
-              { category: { contains: q, mode: "insensitive" } },
-              { sku: { contains: q, mode: "insensitive" } },
-            ],
-          }
-          : {}),
-        ...(typeof isActive === "boolean" ? { isActive } : {}),
       },
-      orderBy: { id: "desc" },
       select: {
         id: true,
         storeId: true,
@@ -53,6 +46,10 @@ export async function getProducts(req: Request, res: Response) {
         createdAt: true,
       },
     });
+
+    if (!data) {
+      return res.status(404).json({ error: "Product not found." });
+    }
 
     return res.json({ data });
   } catch (e) {
