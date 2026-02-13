@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { prisma } from "../../lib/prisma";
 
+
 function parseStoreId(req: Request) {
-  const storeIdRaw = req.query.storeId ?? req.body.storeId;
+  const storeIdRaw = req.query.storeId;
   const storeId = Number(storeIdRaw);
   if (!storeIdRaw || Number.isNaN(storeId) || storeId <= 0) return null;
   return storeId;
@@ -18,6 +19,7 @@ function parseId(req: Request) {
 export async function getProductById(req: Request, res: Response) {
   try {
     const id = parseId(req);
+    console.log("Parsed id:", id);
     if (!id) {
       return res.status(400).json({ error: "id must be a positive integer." });
     }
@@ -26,7 +28,7 @@ export async function getProductById(req: Request, res: Response) {
     if (!storeId) {
       return res
         .status(400)
-        .json({ error: "storeId is required (query or body)." });
+        .json({ error: "storeId is required" });
     }
 
     const data = await prisma.product.findFirst({
