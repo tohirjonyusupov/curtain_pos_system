@@ -4,9 +4,9 @@ import { usePathname } from "next/navigation";
 import { useCartStore } from "@/store/cart";
 
 const NAV = [
-  { href: "/pos",       label: "POS Kassa",    icon: "⊡" },
-  { href: "/products",  label: "Mahsulotlar",  icon: "◫" },
-  { href: "/inventory", label: "Ombor",        icon: "◧" },
+  { href: "/dashboard/pos",       label: "POS Kassa",    icon: "⊡" },
+  { href: "/dashboard/products",  label: "Mahsulotlar",  icon: "◫" },
+  { href: "/dashboard/inventory", label: "Ombor",        icon: "◧" },
   { href: "/dashboard", label: "Dashboard",    icon: "◈" },
 ];
 
