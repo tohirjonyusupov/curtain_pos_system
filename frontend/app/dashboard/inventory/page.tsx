@@ -1,104 +1,21 @@
-"use client";
-import { useState } from "react";
-import { Product, AdjustType } from "@/lib/types";
-import { MOCK_PRODUCTS } from "@/lib/mock-data";
-import { fmt } from "@/lib/format";
-import { AdjustModal } from "@/components/inventory/AdjustModal";
-import {
-  PageHeader, Button, Input, Tag,
-  Table, Tr, Td, Toast,
-} from "@/components/ui";
+import { inventoryApi } from "@/lib/api";
+import { PageHeader } from "@/components/ui";
+import InventoryClient from "@/components/inventory/InventoryClient";
 
-export default function InventoryPage() {
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<Product | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
-
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleAdjust = (type: AdjustType, qty: number, _note: string) => {
-    // TODO: await inventoryApi.adjust(selected!.id, type, qty, note)
-    setProducts((prev) =>
-      prev.map((p) => {
-        if (p.id !== selected!.id) return p;
-        const newStock =
-          type === "in" ? p.stock + qty : Math.max(0, p.stock - qty);
-        return { ...p, stock: newStock };
-      })
-    );
-    const label = type === "in" ? "Kirim" : "Chiqim";
-    setToast(`${label}: ${selected!.name} — ${qty} dona`);
-    setTimeout(() => setToast(null), 2500);
-    setSelected(null);
-  };
-
-  const stockColor = (stock: number) =>
-    stock === 0 ? "red" : stock < 20 ? "yellow" : "green";
-
-  const stockLabel = (stock: number) =>
-    stock === 0 ? "Tugagan" : stock < 20 ? "Kam" : "Normal";
+export default async function InventoryPage() {
+  const response = await inventoryApi.getAll(1);
+  const products = response.data.data;
 
   return (
     <>
-      <PageHeader
-        title="Ombor"
-        subtitle="Qoldiqlarni boshqarish"
-      />
+      <PageHeader title="Ombor" subtitle="Qoldiqlarni boshqarish" />
 
       <div style={{
         padding: "20px 28px", flex: 1, overflowY: "auto",
         display: "flex", flexDirection: "column", gap: 16,
       }}>
-        <Input
-          value={search}
-          onChange={setSearch}
-          placeholder="Qidirish..."
-          icon={<span style={{ fontSize: 14 }}>🔍</span>}
-        />
-
-        <Table
-          headers={["#", "Mahsulot", "Kategoriya", "Narx", "Qoldiq", "Holat", ""]}
-          empty={filtered.length === 0}
-        >
-          {filtered.map((p, i) => (
-            <Tr key={p.id}>
-              <Td mono muted>{String(i + 1).padStart(2, "0")}</Td>
-              <Td><span style={{ fontWeight: 600 }}>{p.name}</span></Td>
-              <Td><Tag color="blue">{p.category}</Tag></Td>
-              <Td mono><span style={{ color: "var(--accent)" }}>{fmt(p.price)}</span></Td>
-              <Td mono>
-                <span style={{ fontWeight: 700, fontSize: 15 }}>{p.stock}</span>
-              </Td>
-              <Td>
-                <Tag color={stockColor(p.stock)}>{stockLabel(p.stock)}</Tag>
-              </Td>
-              <Td>
-                <Button
-                  variant="ghost"
-                  onClick={() => setSelected(p)}
-                  style={{ fontSize: 12, padding: "5px 12px" }}
-                >
-                  Kirim / Chiqim
-                </Button>
-              </Td>
-            </Tr>
-          ))}
-        </Table>
+        <InventoryClient products={products} />
       </div>
-
-      {selected && (
-        <AdjustModal
-          product={selected}
-          onAdjust={handleAdjust}
-          onClose={() => setSelected(null)}
-        />
-      )}
-
-      {toast && <Toast message={toast} />}
     </>
   );
 }

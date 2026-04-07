@@ -24,4 +24,5 @@ export const salesApi = {
 export const inventoryApi = {
   adjust: (productId: number, type: "in" | "out", qty: number, note?: string) =>
     api.post("/inventory/adjust", { productId, type, qty, note }),
+  getAll: (storeId: number) => api.get("/inventory", { params: storeId ? { storeId } : {} }),
 };
