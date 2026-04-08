@@ -22,16 +22,16 @@ export default function InventoryClient({ products: initial }: Props) {
   const filtered = useMemo(() => {
     if (!search) return products;
     return products.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.category.toLowerCase().includes(search.toLowerCase())
+      p.product.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.product.category.toLowerCase().includes(search.toLowerCase())
     );
   }, [products, search]);
 
-  const stockColor = (stock: number) =>
-    stock === 0 ? "red" : stock < 20 ? "yellow" : "green";
+  const stateColor = (active: boolean) =>
+    active === true ? "green" : "red";
 
-  const stockLabel = (stock: number) =>
-    stock === 0 ? "Tugagan" : stock < 20 ? "Kam" : "Normal";
+  const stateLabel = (active: boolean) =>
+    active === true ? "Mavjud" : "Tugagan";
 
   const handleAdjust = async (type: AdjustType, qty: number, note: string) => {
     if (!selected) return;
@@ -40,12 +40,12 @@ export default function InventoryClient({ products: initial }: Props) {
       setProducts((prev) =>
         prev.map((p) => {
           if (p.id !== selected.id) return p;
-          const newStock = type === "in" ? p.stock + qty : Math.max(0, p.stock - qty);
+          const newStock = type === "in" ? p.qty + qty : Math.max(0, p.qty - qty);
           return { ...p, stock: newStock };
         })
       );
       const label = type === "in" ? "Kirim" : "Chiqim";
-      setToast(`${label}: ${selected.name} — ${qty} dona`);
+      setToast(`${label}: ${selected.product.name} — ${qty} dona`);
       setTimeout(() => setToast(null), 2500);
       setSelected(null);
     } catch (err) {
@@ -70,14 +70,14 @@ export default function InventoryClient({ products: initial }: Props) {
         {filtered.map((p, i) => (
           <Tr key={p.id}>
             <Td mono muted>{String(i + 1).padStart(2, "0")}</Td>
-            <Td><span style={{ fontWeight: 600 }}>{p.name}</span></Td>
-            <Td><Tag color="blue">{p.category}</Tag></Td>
-            <Td mono><span style={{ color: "var(--accent)" }}>{fmt(p.price)}</span></Td>
+            <Td><span style={{ fontWeight: 600 }}>{p.product.name.charAt(0).toUpperCase() + p.product.name.slice(1)}</span></Td>
+            <Td><Tag color="blue">{p.product.category}</Tag></Td>
+            <Td mono><span style={{ color: "var(--accent)" }}>{fmt(p.product.basePrice)}</span></Td>
             <Td mono>
-              <span style={{ fontWeight: 700, fontSize: 15 }}>{p.stock}</span>
+              <span style={{ fontWeight: 700, fontSize: 15 }}>{p.qty}</span>
             </Td>
             <Td>
-              <Tag color={stockColor(p.stock)}>{stockLabel(p.stock)}</Tag>
+              <Tag color={stateColor(p.product.isActive)}>{stateLabel(p.product.isActive)}</Tag>
             </Td>
             <Td>
               <Button

@@ -15,10 +15,11 @@ export function AdjustModal({ product, onAdjust, onClose }: Props) {
   const [note, setNote] = useState("");
 
   const parsedQty = parseInt(qty) || 0;
+  
   const newStock =
     type === "in"
-      ? product.stock + parsedQty
-      : Math.max(0, product.stock - parsedQty);
+      ? Number(product.qty) + parsedQty
+      : Math.max(0, product.qty - parsedQty);
 
   const handleConfirm = () => {
     if (parsedQty < 1) return;
@@ -27,7 +28,7 @@ export function AdjustModal({ product, onAdjust, onClose }: Props) {
 
   return (
     <Modal
-      title={product.name}
+      title={product.product.name}
       onClose={onClose}
       footer={
         <>
@@ -44,7 +45,7 @@ export function AdjustModal({ product, onAdjust, onClose }: Props) {
       }}>
         Hozirgi qoldiq:{" "}
         <strong style={{ color: "var(--text)", fontSize: 14 }}>
-          {product.stock} dona
+          {product.qty} dona
         </strong>
       </div>
 

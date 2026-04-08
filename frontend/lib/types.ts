@@ -1,9 +1,17 @@
 export interface Product {
-  id: number;
-  name: string;
-  price: number;
-  stock: number;
-  category: string;
+  id: number,
+  storeId: number,
+  productId: number,
+  qty: number,
+  updatedAt: string,
+  product: {
+    name: string,
+    sku: string,
+    category: string,
+    unit: string,
+    basePrice: number,
+    isActive: boolean
+  }
 }
 
 export interface CartItem {

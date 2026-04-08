@@ -8,7 +8,7 @@ export const swaggerSpec = swaggerJSDoc({
       version: "1.0.0",
       description: "MVP endpoints: Products, Inventory, Sales",
     },
-    servers: [{ url: "http://localhost:3000" }],
+    servers: [{ url: "http://localhost:4000" }],
     components: {
       schemas: {
         ErrorResponse: {
