@@ -22,7 +22,7 @@ export const salesApi = {
 
 // Inventory
 export const inventoryApi = {
-  adjust: (productId: number, type: "in" | "out", qty: number, note?: string) =>
-    api.post("/inventory/adjust", { productId, type, qty, note }),
   getAll: (storeId: number) => api.get("/inventory", { params: storeId ? { storeId } : {} }),
+  adjust: (storeId: number, productId: number, deltaQty: number) =>
+    api.post("/inventory/adjust", {storeId, productId, deltaQty }),
 };

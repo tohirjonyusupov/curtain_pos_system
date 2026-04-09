@@ -5,7 +5,7 @@ import { Modal, Button, FormField, Input } from "@/components/ui";
 
 interface Props {
   product: Product;
-  onAdjust: (type: AdjustType, qty: number, note: string) => void;
+  onAdjust: (type: AdjustType, qty: number) => void;
   onClose: () => void;
 }
 
@@ -23,7 +23,7 @@ export function AdjustModal({ product, onAdjust, onClose }: Props) {
 
   const handleConfirm = () => {
     if (parsedQty < 1) return;
-    onAdjust(type, parsedQty, note);
+    onAdjust(type, parsedQty);
   };
 
   return (

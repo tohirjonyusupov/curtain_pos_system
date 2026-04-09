@@ -33,15 +33,16 @@ export default function InventoryClient({ products: initial }: Props) {
   const stateLabel = (active: boolean) =>
     active === true ? "Mavjud" : "Tugagan";
 
-  const handleAdjust = async (type: AdjustType, qty: number, note: string) => {
+  const handleAdjust = async (type: AdjustType, qty: number) => {
     if (!selected) return;
     try {
-      await inventoryApi.adjust(selected.id, type, qty, note);
+      const deltaQty = type === "in" ? qty : -qty;
+      await inventoryApi.adjust(1, selected.id, deltaQty);
       setProducts((prev) =>
         prev.map((p) => {
           if (p.id !== selected.id) return p;
-          const newStock = type === "in" ? p.qty + qty : Math.max(0, p.qty - qty);
-          return { ...p, stock: newStock };
+          const newQty = type === "in" ? Number(p.qty) + qty : Math.max(0, p.qty - qty);
+          return { ...p, qty: newQty };
         })
       );
       const label = type === "in" ? "Kirim" : "Chiqim";
