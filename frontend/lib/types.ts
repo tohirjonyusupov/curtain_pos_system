@@ -1,4 +1,4 @@
-export interface Product {
+export interface InventoryProduct {
   id: number,
   storeId: number,
   productId: number,
@@ -12,6 +12,18 @@ export interface Product {
     basePrice: number,
     isActive: boolean
   }
+}
+
+export interface Product {
+  id: number,
+  storeId: number,
+  sku: string,
+  name: string,
+  category: string,
+  unit: string,
+  basePrice: number,
+  isActive: boolean,
+  createdAt: string,
 }
 
 export interface CartItem {

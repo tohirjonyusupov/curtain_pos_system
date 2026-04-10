@@ -1,32 +1,32 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Product } from "@/lib/types";
 import { Modal, Button, FormField, Input } from "@/components/ui";
+import { Product } from "@/lib/types";
 
 interface Props {
   product?: Product;
-  onSave: (data: Omit<Product, "id">) => void;
+  onSave: (data: Omit<Product, "id" | "storeId" | "sku" | "unit" | "isActive" | "createdAt">) => void;
   onClose: () => void;
 }
 
 export function ProductModal({ product, onSave, onClose }: Props) {
   const [name, setName] = useState(product?.name ?? "");
-  const [price, setPrice] = useState(String(product?.price ?? ""));
-  const [stock, setStock] = useState(String(product?.stock ?? ""));
+  const [price, setPrice] = useState(String(product?.basePrice ?? ""));
+  // const [stock, setStock] = useState(String(product?.stock ?? ""));
   const [category, setCategory] = useState(product?.category ?? "");
 
   useEffect(() => {
     if (product) {
       setName(product.name);
-      setPrice(String(product.price));
-      setStock(String(product.stock));
+      setPrice(String(product.basePrice));
+      // setStock(String(product.stock));
       setCategory(product.category);
     }
   }, [product]);
 
   const handleSave = () => {
     if (!name || !price) return;
-    onSave({ name, price: +price, stock: +stock || 0, category });
+    onSave({ name, basePrice: +price, category });
   };
 
   return (
@@ -47,9 +47,9 @@ export function ProductModal({ product, onSave, onClose }: Props) {
         <FormField label="Narx (so'm)">
           <Input value={price} onChange={setPrice} placeholder="0" type="number" />
         </FormField>
-        <FormField label="Qoldiq (dona)">
+        {/* <FormField label="Qoldiq (dona)">
           <Input value={stock} onChange={setStock} placeholder="0" type="number" />
-        </FormField>
+        </FormField> */}
       </div>
       <FormField label="Kategoriya">
         <Input value={category} onChange={setCategory} placeholder="Kategoriya..." />

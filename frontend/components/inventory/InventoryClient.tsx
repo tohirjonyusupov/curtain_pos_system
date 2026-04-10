@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Product, AdjustType } from "@/lib/types";
+import { InventoryProduct, AdjustType } from "@/lib/types";
 import { fmt } from "@/lib/format";
 import { AdjustModal } from "@/components/inventory/AdjustModal";
 import {
@@ -10,13 +10,13 @@ import {
 import { inventoryApi } from "@/lib/api";
 
 interface Props {
-  products: Product[];
+  products: InventoryProduct[];
 }
 
 export default function InventoryClient({ products: initial }: Props) {
-  const [products, setProducts] = useState<Product[]>(initial || []);
+  const [products, setProducts] = useState<InventoryProduct[]>(initial || []);
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<Product | null>(null);
+  const [selected, setSelected] = useState<InventoryProduct | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const filtered = useMemo(() => {

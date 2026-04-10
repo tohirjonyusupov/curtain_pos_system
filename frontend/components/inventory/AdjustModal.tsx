@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
-import { Product, AdjustType } from "@/lib/types";
+import { InventoryProduct, AdjustType } from "@/lib/types";
 import { Modal, Button, FormField, Input } from "@/components/ui";
 
 interface Props {
-  product: Product;
+  product: InventoryProduct;
   onAdjust: (type: AdjustType, qty: number) => void;
   onClose: () => void;
 }
