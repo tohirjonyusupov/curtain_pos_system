@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { useCartStore } from "@/store/cart";
 
 const NAV = [
@@ -13,6 +14,7 @@ const NAV = [
 export function Sidebar() {
   const pathname = usePathname();
   const cart = useCartStore((s) => s.cart);
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
 
   return (
     <aside style={{
@@ -30,6 +32,7 @@ export function Sidebar() {
 
       {NAV.map((n) => {
         const active = pathname === n.href;
+        const hovered = hoveredHref === n.href;
         return (
           <Link key={n.href} href={n.href} style={{ textDecoration: "none" }}>
             <div style={{
@@ -37,10 +40,12 @@ export function Sidebar() {
               padding: "10px 12px", borderRadius: "var(--radius-sm)",
               cursor: "pointer", fontSize: 14, fontWeight: 500,
               color: active ? "var(--accent)" : "var(--text2)",
-              background: active ? "var(--surface3)" : "transparent",
-              border: `1px solid ${active ? "var(--border)" : "transparent"}`,
+              background: active || hovered ? "var(--surface3)" : "transparent",
+              border: `1px solid ${active || hovered ? "var(--border)" : "transparent"}`,
               transition: "all 0.15s",
-            }}>
+            }}
+              onMouseEnter={() => setHoveredHref(n.href)}
+              onMouseLeave={() => setHoveredHref(null)}>
               <span style={{ fontSize: 16 }}>{n.icon}</span>
               {n.label}
               {n.href === "/pos" && cart.length > 0 && (
