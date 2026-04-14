@@ -1,13 +1,13 @@
-import { Router } from "express";
-import { getProducts } from "../controllers/products/getProduct";
-import { getProductById } from "../controllers/products/getProductById";
-import { createProduct } from "../controllers/products/createProduct";
-import { updateProduct } from "../controllers/products/updateProduct";
-import { toggleProduct } from "../controllers/products/toggleProduct";
-import { deleteProduct } from "../controllers/products/deleteProduct";
-
-const productRouter = Router();
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const getProduct_1 = require("../controllers/products/getProduct");
+const getProductById_1 = require("../controllers/products/getProductById");
+const createProduct_1 = require("../controllers/products/createProduct");
+const updateProduct_1 = require("../controllers/products/updateProduct");
+const toggleProduct_1 = require("../controllers/products/toggleProduct");
+const deleteProduct_1 = require("../controllers/products/deleteProduct");
+const productRouter = (0, express_1.Router)();
 /**
  * @openapi
  * /products:
@@ -32,8 +32,7 @@ const productRouter = Router();
  *         description: Bad request
  
  */
-productRouter.get("/", getProducts);
-
+productRouter.get("/", getProduct_1.getProducts);
 /**
  * @openapi
  * /products/{id}:
@@ -57,8 +56,7 @@ productRouter.get("/", getProducts);
  *       400:
  *         description: Bad request
  */
-productRouter.get("/:id", getProductById);
-
+productRouter.get("/:id", getProductById_1.getProductById);
 /**
  * @openapi
  * /products:
@@ -84,8 +82,7 @@ productRouter.get("/:id", getProductById);
  *       400:
  *         description: Bad request
  */
-productRouter.post("/", createProduct);
-
+productRouter.post("/", createProduct_1.createProduct);
 /**
  * @openapi
  * /products/{id}:
@@ -118,8 +115,7 @@ productRouter.post("/", createProduct);
  *       404:
  *         description: Product not found
  */
-productRouter.patch("/:id", updateProduct);
-
+productRouter.patch("/:id", updateProduct_1.updateProduct);
 /**
  * @openapi
  * /products/{id}:
@@ -148,8 +144,7 @@ productRouter.patch("/:id", updateProduct);
  *       409:
  *         description: Product is used in sales and cannot be deleted
  */
-productRouter.delete("/:id", deleteProduct);
-
+productRouter.delete("/:id", deleteProduct_1.deleteProduct);
 /**
  * @openapi
  * /products/{id}/toggle:
@@ -188,6 +183,5 @@ productRouter.delete("/:id", deleteProduct);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-productRouter.patch("/:id/toggle", toggleProduct);
-
-export default productRouter;
+productRouter.patch("/:id/toggle", toggleProduct_1.toggleProduct);
+exports.default = productRouter;

@@ -1,19 +1,27 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { fmt } from "@/lib/format";
-import { ProductModal } from "@/components/products/ProductModal";
-import { PageHeader, Button, Input, Tag, Table, Tr, Td } from "@/components/ui";
+import { PageHeader, Button, Input, Tag, Table, Tr, Td, Toast } from "@/components/ui";
 import { Product } from "@/lib/types";
+import { productsApi } from "@/lib/api";
 
 interface Props {
   initialProducts: Product[];
 }
 
 export default function ProductsClient({ initialProducts }: Props) {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [search, setSearch] = useState("");
-  const [modal, setModal] = useState<"add" | Product | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 2500);
+  };
 
   const filtered = useMemo(() => {
     const keyword = search.toLowerCase();
@@ -25,19 +33,19 @@ export default function ProductsClient({ initialProducts }: Props) {
     );
   }, [products, search]);
 
-  const handleSave = (data: Omit<Product, "id" | "storeId" | "sku" | "unit" | "isActive" | "createdAt">) => {
-    if (modal === "add") {
-      setProducts((prev) => [...prev, { id: Date.now(), storeId: 0, sku: "", unit: "", isActive: true, createdAt: new Date().toISOString(), ...data }]);
-    } else if (modal && typeof modal === "object") {
-      setProducts((prev) =>
-        prev.map((product) => (product.id === modal.id ? { ...product, ...data } : product))
-      );
-    }
-    setModal(null);
-  };
-
-  const handleDelete = (id: number) => {
-    setProducts((prev) => prev.filter((product) => product.id !== id));
+  const handleDelete = async (id: number) => {
+    // try {
+    //   setBusy(true);
+    //   await productsApi.delete(id);
+    //   setProducts((prev) => prev.filter((product) => product.id !== id));
+    //   showToast("Mahsulot o'chirildi");
+    // } catch {
+    //   showToast("Mahsulot o'chirilmadi");
+    // } finally {
+    //   setBusy(false);
+    // }
+    console.log(id);
+    
   };
 
   return (
@@ -46,7 +54,7 @@ export default function ProductsClient({ initialProducts }: Props) {
         title="Mahsulotlar"
         subtitle={`${products.length} ta mahsulot`}
         action={
-          <Button variant="accent" onClick={() => setModal("add")}>
+          <Button variant="accent" onClick={() => router.push("/dashboard/products/new")} disabled={busy}>
             + Qo&apos;shish
           </Button>
         }
@@ -60,7 +68,7 @@ export default function ProductsClient({ initialProducts }: Props) {
           value={search}
           onChange={setSearch}
           placeholder="Qidirish..."
-          icon={<span style={{ fontSize: 14 }}>🔍</span>}
+          icon={<span style={{ fontSize: 12 }}>Q</span>}
         />
 
         <Table
@@ -77,17 +85,19 @@ export default function ProductsClient({ initialProducts }: Props) {
                 <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                   <Button
                     variant="ghost"
-                    onClick={() => setModal(product)}
+                    onClick={() => router.push(`/dashboard/products/${product.id}/edit`)}
+                    disabled={busy}
                     style={{ padding: "5px 10px", fontSize: 12 }}
                   >
-                    ✎ Tahrir
+                    Tahrir
                   </Button>
                   <Button
                     variant="danger"
                     onClick={() => handleDelete(product.id)}
+                    disabled={busy}
                     style={{ padding: "5px 8px", fontSize: 13 }}
                   >
-                    ✕
+                    X
                   </Button>
                 </div>
               </Td>
@@ -96,14 +106,7 @@ export default function ProductsClient({ initialProducts }: Props) {
         </Table>
       </div>
 
-      {modal !== null && (
-        <ProductModal
-          product={typeof modal === "object" ? modal : undefined}
-          onSave={handleSave}
-          onClose={() => setModal(null)}
-        />
-      )}
+      {toast && <Toast message={toast} />}
     </>
   );
 }
-

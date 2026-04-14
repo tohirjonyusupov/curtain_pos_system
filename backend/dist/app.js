@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const product_routes_1 = __importDefault(require("./routes/product.routes"));
+const inventory_routes_1 = __importDefault(require("./routes/inventory.routes"));
+const sales_routes_1 = __importDefault(require("./routes/sales.routes"));
+const swagger_1 = require("./docs/swagger");
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.use("/products", product_routes_1.default);
+app.use("/inventory", inventory_routes_1.default);
+app.use("/sales", sales_routes_1.default);
+app.use('/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.swaggerSpec));
+exports.default = app;
