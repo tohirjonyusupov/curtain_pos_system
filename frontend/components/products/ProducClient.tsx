@@ -34,16 +34,16 @@ export default function ProductsClient({ initialProducts }: Props) {
   }, [products, search]);
 
   const handleDelete = async (id: number) => {
-    // try {
-    //   setBusy(true);
-    //   await productsApi.delete(id);
-    //   setProducts((prev) => prev.filter((product) => product.id !== id));
-    //   showToast("Mahsulot o'chirildi");
-    // } catch {
-    //   showToast("Mahsulot o'chirilmadi");
-    // } finally {
-    //   setBusy(false);
-    // }
+    try {
+      setBusy(true);
+      await productsApi.delete(id, 1);
+      setProducts((prev) => prev.filter((product) => product.id !== id));
+      showToast("Mahsulot o'chirildi");
+    } catch {
+      showToast("Mahsulot o'chirilmadi");
+    } finally {
+      setBusy(false);
+    }
     console.log(id);
     
   };
