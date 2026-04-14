@@ -228,18 +228,19 @@ export function Td({ children, mono, muted }: { children: ReactNode; mono?: bool
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
-export function Toast({ message }: { message: string }) {
+export function Toast({ message, type = "success" }: { message: string; type?: "success" | "error" }) {
+  const isError = type === "error";
   return (
     <div style={{
       position: "fixed", bottom: 24, right: 24,
-      background: "var(--green)", color: "#fff",
+      background: isError ? "var(--red)" : "var(--green)", color: "#fff",
       padding: "12px 18px", borderRadius: "var(--radius-sm)",
       fontSize: 13, fontWeight: 600,
       display: "flex", alignItems: "center", gap: 8,
       animation: "slideIn 0.2s ease", zIndex: 999,
     }}>
       <style>{`@keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
-      ✓ {message}
+      {isError ? "✕" : "✓"} {message}
     </div>
   );
 }

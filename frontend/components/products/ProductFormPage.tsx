@@ -16,50 +16,52 @@ type ProductFormData = Omit<Product, "id" | "createdAt">;
 
 export default function ProductFormPage({ mode, storeId, product }: Props) {
   const router = useRouter();
-  const [name, setName] = useState(product?.name ?? "");
-  const [price, setPrice] = useState(String(product?.basePrice ?? ""));
-  const [category, setCategory] = useState(product?.category ?? "");
+  const [newProduct, setNewProduct] = useState<ProductFormData>({
+    storeId: storeId,
+    sku: product?.sku ?? `SKU-${Date.now()}`,
+    name: product?.name ?? "",
+    category: product?.category ?? "",
+    unit: product?.unit ?? "",
+    basePrice: product?.basePrice ?? 0,
+    isActive: product?.isActive ?? true,
+  });
   const [busy, setBusy] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{message: string, type: "success" | "error"} | null>(null);
 
-  const showToast = (message: string) => {
-    setToast(message);
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({message, type});
     setTimeout(() => setToast(null), 2500);
   };
 
   const handleSubmit = async () => {
-    if (!name || !price) {
-      showToast("Nom va narx majburiy");
+    if (!newProduct.name.trim() || newProduct.basePrice < 0) {
+      showToast("Nom va narx majburiy", "error");
       return;
     }
 
-    const payload: ProductFormData = {
-      storeId: storeId,
-      sku: product?.sku ?? `SKU-${Date.now()}`,
-      name: name,
-      category: category,
-      unit: product?.unit ?? "dona",
-      basePrice: Number(price),
-      isActive: product?.isActive ?? true,
-    };
+    if(newProduct.unit != "meter" && newProduct.unit != "piece") {
+      showToast("Unit faqat meter yoki piece bo'lishi mumkin", "error");
+      return;
+    }
 
     try {
       setBusy(true);
 
       if (mode === "create") {
-        await productsApi.create({ ...payload, storeId });
+        await productsApi.create({ ...newProduct, storeId });
+        console.log(newProduct);
         showToast("Mahsulot qo'shildi");
       } else if (product) {
-        console.log(product.id, payload);
         
-        await productsApi.update(product.id, { ...payload });
+        await productsApi.update(product.id, { ...newProduct });
         showToast("Mahsulot yangilandi");        
       }
 
       router.push("/dashboard/products");
       router.refresh();
-    } catch {
-      showToast("Xatolik: saqlanmadi");
+    } catch (error) {
+      console.error(error);
+      showToast("Xatolik: saqlanmadi", "error");
     } finally {
       setBusy(false);
     }
@@ -84,8 +86,8 @@ export default function ProductFormPage({ mode, storeId, product }: Props) {
         gap: 16,
       }}>
         <div style={{
-          width: "100%",
-          maxWidth: 520,
+          width: "80%",
+          margin: "0 auto",
           background: "var(--surface)",
           border: "1px solid var(--border)",
           borderRadius: "var(--radius)",
@@ -95,15 +97,21 @@ export default function ProductFormPage({ mode, storeId, product }: Props) {
           gap: 14,
         }}>
           <FormField label="Mahsulot nomi">
-            <Input value={name} onChange={setName} placeholder="Nomi..." autoFocus />
+            <Input value={newProduct.name} onChange={(val) => setNewProduct({...newProduct, name: val})} placeholder="Nomi..." autoFocus />
+          </FormField>
+          <FormField label="SKU">
+            <Input value={newProduct.sku} onChange={(val) => setNewProduct({...newProduct, sku: val})} placeholder="SKU..." />
+          </FormField>
+          <FormField label="Unit">
+            <Input value={newProduct.unit} onChange={(val) => setNewProduct({...newProduct, unit: val})} placeholder="Unit..." />
           </FormField>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <FormField label="Narx (so'm)">
-              <Input value={price} onChange={setPrice} placeholder="0" type="number" />
+              <Input value={String(newProduct.basePrice)} onChange={(val) => setNewProduct({...newProduct, basePrice: Number(val)})} placeholder="0" type="number" />
             </FormField>
             <FormField label="Kategoriya">
-              <Input value={category} onChange={setCategory} placeholder="Kategoriya..." />
+              <Input value={newProduct.category} onChange={(val) => setNewProduct({...newProduct, category: val})} placeholder="Kategoriya..." />
             </FormField>
           </div>
 
@@ -116,7 +124,7 @@ export default function ProductFormPage({ mode, storeId, product }: Props) {
         </div>
       </div>
 
-      {toast && <Toast message={toast} />}
+      {toast && <Toast message={toast.message} type={toast.type} />}
     </>
   );
 }
