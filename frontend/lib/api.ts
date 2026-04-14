@@ -9,8 +9,9 @@ export const api = axios.create({
 export const productsApi = {
   getAll: (storeId?: number) =>
     api.get(`/products?storeId=${storeId}`,),
+  getById: (id: number, storeId: number) => api.get(`/products/${id}?storeId=${storeId}`),
   create: (data: unknown) => api.post("/products", data),
-  update: (id: number, data: unknown) => api.put(`/products/${id}`, data),
+  update: (id: number, data: unknown) => api.patch(`/products/${id}`, data),
   delete: (id: number, storeId: number) => api.delete(`/products/${id}?storeId=${storeId}`),
 };
 

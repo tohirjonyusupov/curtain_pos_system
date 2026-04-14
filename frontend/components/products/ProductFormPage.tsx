@@ -12,7 +12,7 @@ interface Props {
   product?: Product;
 }
 
-type ProductFormData = Omit<Product, "id" | "storeId" | "sku" | "unit" | "isActive" | "createdAt">;
+type ProductFormData = Omit<Product, "id" | "createdAt">;
 
 export default function ProductFormPage({ mode, storeId, product }: Props) {
   const router = useRouter();
@@ -34,9 +34,13 @@ export default function ProductFormPage({ mode, storeId, product }: Props) {
     }
 
     const payload: ProductFormData = {
-      name,
-      category,
+      storeId: storeId,
+      sku: product?.sku ?? `SKU-${Date.now()}`,
+      name: name,
+      category: category,
+      unit: product?.unit ?? "dona",
       basePrice: Number(price),
+      isActive: product?.isActive ?? true,
     };
 
     try {
@@ -46,8 +50,10 @@ export default function ProductFormPage({ mode, storeId, product }: Props) {
         await productsApi.create({ ...payload, storeId });
         showToast("Mahsulot qo'shildi");
       } else if (product) {
-        await productsApi.update(product.id, { ...payload, storeId });
-        showToast("Mahsulot yangilandi");
+        console.log(product.id, payload);
+        
+        await productsApi.update(product.id, { ...payload });
+        showToast("Mahsulot yangilandi");        
       }
 
       router.push("/dashboard/products");
