@@ -14,7 +14,14 @@ export default async function InventoryPage() {
         padding: "20px 28px", flex: 1, overflowY: "auto",
         display: "flex", flexDirection: "column", gap: 16,
       }}>
-        <InventoryClient products={products} />
+
+        {products.length === 0 ? (
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <p>Ombor bo'sh</p>
+          </div>
+        ) : (
+          <InventoryClient products={products} />
+        )}
       </div>
     </>
   );

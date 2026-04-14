@@ -48,9 +48,9 @@ export async function getInventory(req: Request, res: Response) {
           },
         },
       },
-    });
+    });    
     if (data.length === 0) {
-      return res.status(404).json({ error: "Inventory is empty for the given storeId and query." });
+      return res.json({ data: [], message: "No inventory items found for this store." });
     }
     return res.json({ data });
   } catch (e) {
