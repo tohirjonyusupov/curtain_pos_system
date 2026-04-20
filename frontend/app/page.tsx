@@ -63,11 +63,6 @@ export default function MainPage() {
             fontSize: 18, fontWeight: 800,
             color: "var(--accent)", letterSpacing: "-0.5px",
           }}>SavdoPOS</span>
-          <span style={{
-            fontSize: 10, fontFamily: "var(--mono)",
-            color: "var(--text3)", paddingLeft: 10,
-            borderLeft: "1px solid var(--border)",
-          }}>parda do'konlari uchun</span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
